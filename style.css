@@ -1,139 +1,149 @@
-/* Global Styles */
+/* =============================
+   Global Styles
+============================= */
 body {
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-    background: #0a192f; /* Dark Navy */
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #121212, #1e1e1e);
     color: #fff;
+    margin: 0;
+    padding: 0;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     min-height: 100vh;
 }
 
-/* Auth Container */
-.auth-container {
-    background: #112240; /* Slightly lighter navy */
+/* Container */
+.container {
+    width: 100%;
+    max-width: 500px;
+    background: #1b1b1b;
     padding: 20px;
+    margin: 30px 10px;
     border-radius: 12px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
-.auth-tabs {
+/* Headings */
+h1, h2 {
+    color: gold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Tabs */
+.tabs {
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
-.tab-btn {
+.tab {
     flex: 1;
-    padding: 10px;
-    background: transparent;
+    padding: 12px;
+    background: #2a2a2a;
     border: none;
-    border-bottom: 2px solid transparent;
-    color: #fff;
-    font-size: 16px;
+    color: #bbb;
     cursor: pointer;
+    font-size: 16px;
     transition: 0.3s;
 }
 
-.tab-btn.active {
-    border-bottom: 2px solid gold;
-    color: gold;
+.tab.active {
+    background: gold;
+    color: black;
+    font-weight: bold;
 }
 
-.auth-form {
+/* Forms */
+form {
     display: flex;
     flex-direction: column;
-}
-
-.hidden {
-    display: none;
-}
-
-h2 {
-    text-align: center;
-    margin-bottom: 15px;
-    color: gold;
-}
-
-input, select, button {
-    margin: 8px 0;
-    padding: 10px;
-    border-radius: 6px;
-    border: none;
-    font-size: 15px;
+    gap: 12px;
 }
 
 input, select {
-    background: #1b2b4b;
-    color: #fff;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #2a2a2a;
+    color: white;
+    font-size: 14px;
+    outline: none;
 }
 
+input:focus, select:focus {
+    border: 1px solid gold;
+}
+
+/* Password Eye Icon */
+.password-wrapper {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: gold;
+}
+
+/* Buttons */
 button {
+    padding: 12px;
     background: gold;
-    color: #0a192f;
+    color: black;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     transition: 0.3s;
 }
 
 button:hover {
-    background: #ffd700d8;
+    background: #ffcc00;
 }
 
-/* Password Toggle */
-.password-container {
-    position: relative;
-}
-
-.toggle-password {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-}
-
-/* Forgot link */
-.forgot-link {
-    text-align: center;
+/* Links */
+a {
     color: gold;
-    cursor: pointer;
+    text-decoration: none;
     font-size: 14px;
+    text-align: center;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Hidden Class */
+.hidden {
+    display: none;
 }
 
 /* Dashboard */
-#dashboard {
-    width: 95%;
-    max-width: 800px;
-    padding: 20px;
-}
-
-#welcomeMessage {
-    text-align: center;
-    color: gold;
-    margin-bottom: 20px;
-}
-
-.bill-entry {
-    background: #112240;
+.dashboard-section {
+    background: #1b1b1b;
     padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
+    border-radius: 10px;
+    margin-top: 15px;
 }
 
-.chart-container {
-    background: #112240;
-    padding: 15px;
+/* Chart */
+#billsChart {
+    background: #fff;
     border-radius: 8px;
-    margin-bottom: 20px;
+    padding: 10px;
+    margin-top: 15px;
 }
 
-/* Mobile */
+/* Mobile Responsive */
 @media (max-width: 600px) {
-    .auth-container {
+    .container {
+        max-width: 95%;
         padding: 15px;
     }
 }
