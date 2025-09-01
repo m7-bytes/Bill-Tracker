@@ -1,187 +1,139 @@
-/* General Styles */
+/* Global Styles */
 body {
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
-    background-color: #0b132b;
-    color: #f1f1f1;
+    background: #0a192f; /* Dark Navy */
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
-/* Hide elements */
+/* Auth Container */
+.auth-container {
+    background: #112240; /* Slightly lighter navy */
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.auth-tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.tab-btn.active {
+    border-bottom: 2px solid gold;
+    color: gold;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+}
+
 .hidden {
     display: none;
 }
 
-/* Login Screen */
-#login-screen {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.login-box {
-    background: #1c2541;
-    padding: 2rem;
-    border-radius: 10px;
-    width: 300px;
+h2 {
     text-align: center;
-    border: 2px solid #ffd700;
+    margin-bottom: 15px;
+    color: gold;
 }
 
-.login-box h2 {
-    margin-bottom: 1rem;
-    color: #ffd700;
-}
-
-.login-box input {
-    width: 100%;
-    padding: 0.6rem;
-    margin-bottom: 0.8rem;
+input, select, button {
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 6px;
     border: none;
-    border-radius: 5px;
+    font-size: 15px;
 }
 
-.password-wrapper {
-    display: flex;
+input, select {
+    background: #1b2b4b;
+    color: #fff;
 }
 
-.password-wrapper input {
-    flex: 1;
-}
-
-.password-wrapper button {
-    background: #ffd700;
-    border: none;
-    padding: 0 10px;
-    cursor: pointer;
-}
-
-/* Dashboard Layout */
-#dashboard {
-    display: flex;
-}
-
-aside {
-    background: #1c2541;
-    width: 200px;
-    min-height: 100vh;
-    padding: 1rem;
-    border-right: 2px solid #ffd700;
-}
-
-aside h2 {
-    color: #ffd700;
-    margin-bottom: 1.5rem;
-}
-
-aside ul {
-    list-style: none;
-    padding: 0;
-}
-
-aside ul li {
-    margin-bottom: 1rem;
-}
-
-aside ul li button {
-    background: none;
-    color: #f1f1f1;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    text-align: left;
-    padding: 0.5rem;
-    border-radius: 5px;
-}
-
-aside ul li button:hover {
-    background: #3a506b;
-}
-
-/* Main Content */
-main {
-    flex: 1;
-    padding: 1.5rem;
-}
-
-.section h2 {
-    color: #ffd700;
-    margin-bottom: 1rem;
-}
-
-/* Summary Bar */
-.summary-bar {
-    display: flex;
-    justify-content: space-around;
-    background: #1c2541;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    border: 1px solid #ffd700;
-}
-
-/* Forms */
-form select, form input, form button {
-    padding: 0.5rem;
-    margin-right: 0.5rem;
-    border: none;
-    border-radius: 5px;
-}
-
-form button {
-    background: #ffd700;
-    color: #000;
+button {
+    background: gold;
+    color: #0a192f;
     font-weight: bold;
     cursor: pointer;
+    transition: 0.3s;
 }
 
-form button:hover {
-    background: #e6c200;
+button:hover {
+    background: #ffd700d8;
 }
 
-/* Table */
-table {
-    width: 100%;
-    border-collapse: collapse;
+/* Password Toggle */
+.password-container {
+    position: relative;
 }
 
-table th, table td {
-    padding: 0.8rem;
-    text-align: left;
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
 }
 
-table thead {
-    background: #3a506b;
+/* Forgot link */
+.forgot-link {
+    text-align: center;
+    color: gold;
+    cursor: pointer;
+    font-size: 14px;
 }
 
-table tbody tr:nth-child(even) {
-    background: #1c2541;
+/* Dashboard */
+#dashboard {
+    width: 95%;
+    max-width: 800px;
+    padding: 20px;
 }
 
-table tbody tr:nth-child(odd) {
-    background: #0b132b;
+#welcomeMessage {
+    text-align: center;
+    color: gold;
+    margin-bottom: 20px;
 }
 
-/* Bill type colors */
-.bill-electricity {
-    color: #ffd700; /* Gold */
+.bill-entry {
+    background: #112240;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
-.bill-gas {
-    color: #ff6347; /* Tomato */
+.chart-container {
+    background: #112240;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
-.bill-internet {
-    color: #00ced1; /* Turquoise */
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    #dashboard {
-        flex-direction: column;
-    }
-    aside {
-        width: 100%;
-        min-height: auto;
+/* Mobile */
+@media (max-width: 600px) {
+    .auth-container {
+        padding: 15px;
     }
 }
