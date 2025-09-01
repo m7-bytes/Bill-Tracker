@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bill Tracker — Family Dashboard</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Login Overlay -->
+  <div id="loginOverlay" class="overlay">
+    <div class="loginCard">
+      <h2>Welcome to Bill Tracker</h2>
+      <p class="muted">Enter password to unlock your private dashboard</p>
+
+      <input id="loginPassword" type="password" placeholder="Password" />
+      <button id="loginBtn">Unlock</button>
+
+      <p id="loginMsg" class="error"></p>
+      <p class="small muted">Hint: This is a client-side lock for household privacy.</p>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="app" class="hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">🏛️</div>
+        <div>
+          <h1>BillTracker</h1>
+          <p class="muted">Family Dashboard</p>
+        </div>
+      </div>
+
+      <nav>
+        <button class="navBtn active" data-view="dashboard">Dashboard</button>
+        <button class="navBtn" data-view="add">Add Bill</button>
+        <button class="navBtn" data-view="history">History</button>
+        <button class="navBtn" data-view="export">Export</button>
+        <button id="logoutBtn" class="navBtn logout">Logout</button>
+      </nav>
+
+      <footer class="muted small">© Your Home • Billtrackerbymt</footer>
+    </aside>
+
+    <main class="main">
+      <!-- Top summary -->
+      <header class="topbar">
+        <div class="summary">
+          <div class="tile">
+            <div class="label">Total This Month</div>
+            <div id="totalMonthly" class="value">₹0</div>
+          </div>
+          <div class="tile">
+            <div class="label">Total This Year</div>
+            <div id="totalYearly" class="value">₹0</div>
+          </div>
+          <div class="tile">
+            <div class="label">Most Expensive (Year)</div>
+            <div id="mostExpensive" class="value">—</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Views -->
+      <section id="dashboard" class="view">
+        <h2>Overview</h2>
+        <div class="chartsRow">
+          <div class="card">
+            <h3>Monthly Trend (This Year)</h3>
+            <canvas id="monthlyChart"></canvas>
+          </div>
+
+          <div class="card">
+            <h3>Annual Comparison (This Year)</h3>
+            <canvas id="annualChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section id="add" class="view hidden">
+        <h2>Add a Bill</h2>
+        <div class="card formCard">
+          <form id="billForm">
+            <div class="row">
+              <label>Type</label>
+              <select id="billType" required>
+                <option>Electricity</option>
+                <option>Gas</option>
+                <option>Internet</option>
+              </select>
+            </div>
+
+            <div class="row">
+              <label>Amount (₹)</label>
+              <input id="billAmount" type="number" step="0.01" min="0" required />
+            </div>
+
+            <div class="row">
+              <label>Date</label>
+              <input id="billDate" type="date" required />
+            </div>
+
+            <div class="row">
+              <label>Status</label>
+              <select id="billPaid">
+                <option value="false">Unpaid</option>
+                <option value="true">Paid</option>
+              </select>
+            </div>
+
+            <div class="row actions">
+              <button type="submit" class="btn primary">Add Bill</button>
+              <button type="button" id="clearForm" class="btn ghost">Clear</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="history" class="view hidden">
+        <h2>Bill History</h2>
+
+        <div class="filters card">
+          <div class="row inline">
+            <label>Filter</label>
+            <select id="filterType">
+              <option value="All">All</option>
+              <option>Electricity</option>
+              <option>Gas</option>
+              <option>Internet</option>
+            </select>
+
+            <label>From</label>
+            <input type="date" id="filterFrom" />
+
+            <label>To</label>
+            <input type="date" id="filterTo" />
+
+            <button id="applyFilter" class="btn">Apply</button>
+            <button id="resetFilter" class="btn ghost">Reset</button>
+          </div>
+        </div>
+
+        <div class="card tableCard">
+          <table id="billTable">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="export" class="view hidden">
+        <h2>Export / Backup</h2>
+        <div class="card">
+          <p class="muted">Export all bill data as CSV or download a JSON backup.</p>
+          <div class="row actions">
+            <button id="exportCSV" class="btn primary">Export CSV</button>
+            <button id="downloadJSON" class="btn">Download JSON Backup</button>
+            <button id="importJSON" class="btn ghost">Import JSON</button>
+            <input id="importFile" type="file" accept=".json" style="display:none" />
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
