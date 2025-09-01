@@ -1,106 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bill Tracker</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- Login Screen -->
-    <div id="login-screen" class="screen">
-        <div class="login-box">
-            <h2>Bill Tracker Login</h2>
-            <input type="text" id="username" placeholder="Username">
-            <div class="password-wrapper">
-                <input type="password" id="password" placeholder="Password">
-                <button id="togglePassword">👁</button>
-            </div>
-            <button id="login-btn">Login</button>
-            <p>New here? <a href="#" id="create-account">Create an account</a></p>
+
+    <!-- Login/Signup Container -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-tabs">
+            <button class="tab-btn active" id="loginTab">Login</button>
+            <button class="tab-btn" id="signupTab">Sign Up</button>
         </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form">
+            <h2>Welcome Back</h2>
+            <input type="text" id="loginUsername" placeholder="Username" required>
+            <div class="password-container">
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <span class="toggle-password" data-target="loginPassword">👁</span>
+            </div>
+            <button type="submit">Login</button>
+            <p class="forgot-link" id="forgotPasswordLink">Forgot Password?</p>
+        </form>
+
+        <!-- Signup Form -->
+        <form id="signupForm" class="auth-form hidden">
+            <h2>Create Account</h2>
+            <input type="text" id="signupUsername" placeholder="Choose Username" required>
+            <div class="password-container">
+                <input type="password" id="signupPassword" placeholder="Choose Password" required>
+                <span class="toggle-password" data-target="signupPassword">👁</span>
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form id="forgotPasswordForm" class="auth-form hidden">
+            <h2>Reset Password</h2>
+            <input type="text" id="resetUsername" placeholder="Enter Username" required>
+            <input type="password" id="newPassword" placeholder="New Password" required>
+            <button type="submit">Reset Password</button>
+            <p class="forgot-link" id="backToLogin">Back to Login</p>
+        </form>
     </div>
 
     <!-- Dashboard -->
     <div id="dashboard" class="hidden">
-        <aside>
-            <h2>Bill Tracker</h2>
-            <ul>
-                <li><button class="nav-btn" data-section="reports">Reports</button></li>
-                <li><button class="nav-btn" data-section="add-bill">Add Bill</button></li>
-                <li><button class="nav-btn" data-section="all-bills">All Bills</button></li>
-                <li><button id="logout-btn">Logout</button></li>
-            </ul>
-        </aside>
+        <h1 id="welcomeMessage"></h1>
 
-        <main>
-            <!-- Reports Section -->
-            <section id="reports-section" class="section">
-                <h2>Reports</h2>
-                <div class="summary-bar">
-                    <div>Total Monthly Spend: ₹<span id="total-month"></span></div>
-                    <div>Total Annual Spend: ₹<span id="total-annual"></span></div>
-                    <div>Highest Bill: ₹<span id="highest-bill"></span></div>
-                </div>
-                <canvas id="monthlyChart"></canvas>
-                <canvas id="annualChart"></canvas>
+        <div class="bill-entry">
+            <h2>Add Bill</h2>
+            <select id="billType">
+                <option value="Electricity">Electricity</option>
+                <option value="Gas">Gas</option>
+                <option value="Internet">Internet</option>
+            </select>
+            <input type="number" id="billAmount" placeholder="Amount ₹" required>
+            <input type="month" id="billMonth" required>
+            <button id="addBillBtn">Add Bill</button>
+        </div>
 
-                <h3>Quick Add Bill</h3>
-                <form id="quick-add-form">
-                    <select id="quick-bill-type">
-                        <option value="electricity">Electricity</option>
-                        <option value="gas">Gas</option>
-                        <option value="internet">Internet</option>
-                    </select>
-                    <input type="number" id="quick-amount" placeholder="Amount (₹)">
-                    <input type="date" id="quick-date">
-                    <select id="quick-status">
-                        <option value="Paid">Paid</option>
-                        <option value="Unpaid">Unpaid</option>
-                    </select>
-                    <button type="submit">Add</button>
-                </form>
-                <button id="generate-report">Generate Report</button>
-            </section>
+        <div class="chart-container">
+            <canvas id="billsChart"></canvas>
+        </div>
 
-            <!-- Add Bill Section -->
-            <section id="add-bill-section" class="section hidden">
-                <h2>Add Bill</h2>
-                <form id="bill-form">
-                    <select id="bill-type">
-                        <option value="electricity">Electricity</option>
-                        <option value="gas">Gas</option>
-                        <option value="internet">Internet</option>
-                    </select>
-                    <input type="number" id="amount" placeholder="Amount (₹)">
-                    <input type="date" id="bill-date">
-                    <select id="status">
-                        <option value="Paid">Paid</option>
-                        <option value="Unpaid">Unpaid</option>
-                    </select>
-                    <button type="submit">Save Bill</button>
-                </form>
-            </section>
-
-            <!-- All Bills Section -->
-            <section id="all-bills-section" class="section hidden">
-                <h2>All Bills</h2>
-                <table id="bills-table">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Amount (₹)</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </section>
-        </main>
+        <button id="generateReportBtn">Generate Report</button>
+        <button id="logoutBtn">Logout</button>
     </div>
 
     <script src="app.js"></script>
