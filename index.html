@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <!-- Login/Signup Container -->
+    <!-- Auth Container -->
     <div class="auth-container" id="authContainer">
         <div class="auth-tabs">
             <button class="tab-btn active" id="loginTab">Login</button>
@@ -43,7 +43,10 @@
         <form id="forgotPasswordForm" class="auth-form hidden">
             <h2>Reset Password</h2>
             <input type="text" id="resetUsername" placeholder="Enter Username" required>
-            <input type="password" id="newPassword" placeholder="New Password" required>
+            <div class="password-container">
+                <input type="password" id="newPassword" placeholder="New Password" required>
+                <span class="toggle-password" data-target="newPassword">👁</span>
+            </div>
             <button type="submit">Reset Password</button>
             <p class="forgot-link" id="backToLogin">Back to Login</p>
         </form>
