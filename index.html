@@ -1,216 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BillTracker — Family Reports</title>
-
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bill Tracker</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <!-- LOGIN / CREATE -->
-  <div id="loginOverlay" class="overlay">
-    <div class="loginCard">
-      <h2>BillTracker</h2>
-      <p class="muted">Private family bill dashboard (stored locally)</p>
-
-      <div id="loginView">
-        <input id="loginUser" type="text" placeholder="Username" autocomplete="username" />
-        <div class="pwRow">
-          <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
-          <label class="showPw">
-            <input id="showPwLogin" type="checkbox" /> show
-          </label>
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen">
+        <div class="login-box">
+            <h2>Bill Tracker Login</h2>
+            <input type="text" id="username" placeholder="Username">
+            <div class="password-wrapper">
+                <input type="password" id="password" placeholder="Password">
+                <button id="togglePassword">👁</button>
+            </div>
+            <button id="login-btn">Login</button>
+            <p>New here? <a href="#" id="create-account">Create an account</a></p>
         </div>
-
-        <div class="row actions" style="margin-top:8px">
-          <button id="loginBtn" class="btn primary">Unlock</button>
-          <button id="openCreate" class="btn ghost">Create account</button>
-        </div>
-
-        <p id="loginMsg" class="error"></p>
-      </div>
-
-      <div id="createView" class="hidden">
-        <input id="newUser" type="text" placeholder="Choose username" />
-        <div class="pwRow">
-          <input id="newPassword" type="password" placeholder="Choose password" />
-          <label class="showPw">
-            <input id="showPwCreate" type="checkbox" /> show
-          </label>
-        </div>
-        <input id="newPassword2" type="password" placeholder="Confirm password" />
-        <div class="row actions" style="margin-top:8px">
-          <button id="createBtn" class="btn primary">Create</button>
-          <button id="cancelCreate" class="btn ghost">Cancel</button>
-        </div>
-        <p id="createMsg" class="error"></p>
-      </div>
-
-      <p class="small muted" style="margin-top:10px">Accounts & data stored locally in your browser.</p>
     </div>
-  </div>
 
-  <!-- APP -->
-  <div id="app" class="hidden">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="logo">🏛️</div>
-        <div>
-          <h1>BillTracker</h1>
-          <p class="muted" id="signedInAs">Family Dashboard</p>
-        </div>
-      </div>
+    <!-- Dashboard -->
+    <div id="dashboard" class="hidden">
+        <aside>
+            <h2>Bill Tracker</h2>
+            <ul>
+                <li><button class="nav-btn" data-section="reports">Reports</button></li>
+                <li><button class="nav-btn" data-section="add-bill">Add Bill</button></li>
+                <li><button class="nav-btn" data-section="all-bills">All Bills</button></li>
+                <li><button id="logout-btn">Logout</button></li>
+            </ul>
+        </aside>
 
-      <nav>
-        <button class="navBtn" data-view="reports">Reports</button>
-        <button class="navBtn" data-view="add">Add Bill</button>
-        <button class="navBtn" data-view="history">History</button>
-        <button class="navBtn" data-view="export">Export</button>
-        <button id="logoutBtn" class="navBtn logout">Logout</button>
-      </nav>
+        <main>
+            <!-- Reports Section -->
+            <section id="reports-section" class="section">
+                <h2>Reports</h2>
+                <div class="summary-bar">
+                    <div>Total Monthly Spend: ₹<span id="total-month"></span></div>
+                    <div>Total Annual Spend: ₹<span id="total-annual"></span></div>
+                    <div>Highest Bill: ₹<span id="highest-bill"></span></div>
+                </div>
+                <canvas id="monthlyChart"></canvas>
+                <canvas id="annualChart"></canvas>
 
-      <footer class="muted small">© Your Home • BillTracker</footer>
-    </aside>
+                <h3>Quick Add Bill</h3>
+                <form id="quick-add-form">
+                    <select id="quick-bill-type">
+                        <option value="electricity">Electricity</option>
+                        <option value="gas">Gas</option>
+                        <option value="internet">Internet</option>
+                    </select>
+                    <input type="number" id="quick-amount" placeholder="Amount (₹)">
+                    <input type="date" id="quick-date">
+                    <select id="quick-status">
+                        <option value="Paid">Paid</option>
+                        <option value="Unpaid">Unpaid</option>
+                    </select>
+                    <button type="submit">Add</button>
+                </form>
+                <button id="generate-report">Generate Report</button>
+            </section>
 
-    <main class="main">
-      <!-- Top Summary -->
-      <header class="topbar">
-        <div class="summary">
-          <div class="tile">
-            <div class="label">Total This Month</div>
-            <div id="totalMonthly" class="value">₹0</div>
-          </div>
-          <div class="tile">
-            <div class="label">Total This Year</div>
-            <div id="totalYearly" class="value">₹0</div>
-          </div>
-          <div class="tile">
-            <div class="label">Most Expensive (Year)</div>
-            <div id="mostExpensive" class="value">—</div>
-          </div>
-        </div>
-      </header>
+            <!-- Add Bill Section -->
+            <section id="add-bill-section" class="section hidden">
+                <h2>Add Bill</h2>
+                <form id="bill-form">
+                    <select id="bill-type">
+                        <option value="electricity">Electricity</option>
+                        <option value="gas">Gas</option>
+                        <option value="internet">Internet</option>
+                    </select>
+                    <input type="number" id="amount" placeholder="Amount (₹)">
+                    <input type="date" id="bill-date">
+                    <select id="status">
+                        <option value="Paid">Paid</option>
+                        <option value="Unpaid">Unpaid</option>
+                    </select>
+                    <button type="submit">Save Bill</button>
+                </form>
+            </section>
 
-      <!-- REPORTS (default view after login) -->
-      <section id="reports" class="view">
-        <h2>Reports</h2>
-        <div class="card">
-          <p class="muted">Click <strong>Generate Report</strong> to render this year's charts.</p>
-          <div class="row actions">
-            <button id="generateReport" class="btn primary">Generate Report</button>
-          </div>
-        </div>
+            <!-- All Bills Section -->
+            <section id="all-bills-section" class="section hidden">
+                <h2>All Bills</h2>
+                <table id="bills-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Amount (₹)</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+        </main>
+    </div>
 
-        <div id="reportArea" class="card hidden">
-          <div class="chartsRow">
-            <div class="card">
-              <h3>Monthly Expense Trend (This Year)</h3>
-              <canvas id="monthlyChart"></canvas>
-            </div>
-
-            <div class="card">
-              <h3>Annual Category Comparison (This Year)</h3>
-              <canvas id="annualChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ADD -->
-      <section id="add" class="view hidden">
-        <h2>Add Bill</h2>
-        <div class="card formCard">
-          <form id="billForm">
-            <div class="row">
-              <label>Type</label>
-              <select id="billType" required>
-                <option>Electricity</option>
-                <option>Gas</option>
-                <option>Internet</option>
-              </select>
-            </div>
-
-            <div class="row">
-              <label>Amount (₹)</label>
-              <input id="billAmount" type="number" step="0.01" min="0" required />
-            </div>
-
-            <div class="row">
-              <label>Date</label>
-              <input id="billDate" type="date" required />
-            </div>
-
-            <div class="row">
-              <label>Status</label>
-              <select id="billPaid">
-                <option value="false">Unpaid</option>
-                <option value="true">Paid</option>
-              </select>
-            </div>
-
-            <div class="row actions">
-              <button type="submit" class="btn primary">Add Bill</button>
-              <button type="button" id="clearForm" class="btn ghost">Clear</button>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <!-- HISTORY -->
-      <section id="history" class="view hidden">
-        <h2>Bill History</h2>
-        <div class="filters card">
-          <div class="row inline">
-            <label>Filter</label>
-            <select id="filterType">
-              <option value="All">All</option>
-              <option>Electricity</option>
-              <option>Gas</option>
-              <option>Internet</option>
-            </select>
-
-            <label>From</label><input type="date" id="filterFrom" />
-            <label>To</label><input type="date" id="filterTo" />
-
-            <button id="applyFilter" class="btn">Apply</button>
-            <button id="resetFilter" class="btn ghost">Reset</button>
-          </div>
-        </div>
-
-        <div class="card tableCard">
-          <table id="billTable">
-            <thead>
-              <tr>
-                <th>Type</th><th>Amount</th><th>Date</th><th>Status</th><th>Actions</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- EXPORT -->
-      <section id="export" class="view hidden">
-        <h2>Export / Backup</h2>
-        <div class="card">
-          <p class="muted">Export CSV, backup JSON, import JSON, or clear all bills for this account.</p>
-          <div class="row actions">
-            <button id="exportCSV" class="btn primary">Export CSV</button>
-            <button id="downloadJSON" class="btn">Download JSON</button>
-            <button id="importJSON" class="btn">Import JSON</button>
-            <input id="importFile" type="file" accept=".json" style="display:none" />
-            <button id="clearAllData" class="btn ghost">Clear All Data</button>
-          </div>
-        </div>
-      </section>
-
-    </main>
-  </div>
-
-  <script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
