@@ -1,81 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bill Tracker</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BillTracker — Family Dashboard</title>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- AUTH (Login / Signup / Forgot) -->
+  <div id="authWrap" class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button id="tabLogin" class="tab active">Login</button>
+        <button id="tabSignup" class="tab">Sign Up</button>
+      </div>
 
-    <!-- Auth Container -->
-    <div class="auth-container" id="authContainer">
-        <div class="auth-tabs">
-            <button class="tab-btn active" id="loginTab">Login</button>
-            <button class="tab-btn" id="signupTab">Sign Up</button>
+      <!-- Login form -->
+      <form id="formLogin" class="auth-form">
+        <h2 class="auth-title">Welcome back</h2>
+
+        <input id="loginUser" type="text" placeholder="Username" required />
+        <div class="pw-row">
+          <input id="loginPass" type="password" placeholder="Password" required />
+          <button type="button" class="eye-btn" data-target="loginPass">👁</button>
         </div>
 
-        <!-- Login Form -->
-        <form id="loginForm" class="auth-form">
-            <h2>Welcome Back</h2>
-            <input type="text" id="loginUsername" placeholder="Username" required>
-            <div class="password-container">
-                <input type="password" id="loginPassword" placeholder="Password" required>
-                <span class="toggle-password" data-target="loginPassword">👁</span>
-            </div>
-            <button type="submit">Login</button>
-            <p class="forgot-link" id="forgotPasswordLink">Forgot Password?</p>
-        </form>
+        <div class="auth-actions">
+          <button id="loginBtn" class="btn primary" type="submit">Login</button>
+          <button id="openForgot" type="button" class="btn ghost">Forgot?</button>
+        </div>
 
-        <!-- Signup Form -->
-        <form id="signupForm" class="auth-form hidden">
-            <h2>Create Account</h2>
-            <input type="text" id="signupUsername" placeholder="Choose Username" required>
-            <div class="password-container">
-                <input type="password" id="signupPassword" placeholder="Choose Password" required>
-                <span class="toggle-password" data-target="signupPassword">👁</span>
-            </div>
-            <button type="submit">Sign Up</button>
-        </form>
+        <p class="muted small">Your data stays on this browser only.</p>
+      </form>
 
-        <!-- Forgot Password Form -->
-        <form id="forgotPasswordForm" class="auth-form hidden">
-            <h2>Reset Password</h2>
-            <input type="text" id="resetUsername" placeholder="Enter Username" required>
-            <div class="password-container">
-                <input type="password" id="newPassword" placeholder="New Password" required>
-                <span class="toggle-password" data-target="newPassword">👁</span>
-            </div>
-            <button type="submit">Reset Password</button>
-            <p class="forgot-link" id="backToLogin">Back to Login</p>
-        </form>
+      <!-- Signup form -->
+      <form id="formSignup" class="auth-form hidden">
+        <h2 class="auth-title">Create account</h2>
+
+        <input id="signupUser" type="text" placeholder="Choose username" required />
+        <div class="pw-row">
+          <input id="signupPass" type="password" placeholder="Choose password" required />
+          <button type="button" class="eye-btn" data-target="signupPass">👁</button>
+        </div>
+
+        <div class="auth-actions">
+          <button id="signupBtn" class="btn primary" type="submit">Sign Up</button>
+          <button id="backToLogin1" type="button" class="btn ghost">Back</button>
+        </div>
+
+        <p class="muted small">Create separate accounts for family members.</p>
+      </form>
+
+      <!-- Forgot form -->
+      <form id="formForgot" class="auth-form hidden">
+        <h2 class="auth-title">Reset password</h2>
+
+        <input id="forgotUser" type="text" placeholder="Username" required />
+        <div class="pw-row">
+          <input id="forgotPass" type="password" placeholder="New password" required />
+          <button type="button" class="eye-btn" data-target="forgotPass">👁</button>
+        </div>
+
+        <div class="auth-actions">
+          <button id="forgotBtn" class="btn primary" type="submit">Reset</button>
+          <button id="backToLogin2" type="button" class="btn ghost">Back</button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <!-- Dashboard -->
-    <div id="dashboard" class="hidden">
-        <h1 id="welcomeMessage"></h1>
+  <!-- APP -->
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">🏛️</div>
+        <div>
+          <div class="brand-title">BillTracker</div>
+          <div id="signedUser" class="muted small">Signed out</div>
+        </div>
+      </div>
 
-        <div class="bill-entry">
-            <h2>Add Bill</h2>
-            <select id="billType">
-                <option value="Electricity">Electricity</option>
-                <option value="Gas">Gas</option>
-                <option value="Internet">Internet</option>
+      <nav class="nav">
+        <button class="nav-btn active" data-view="reports">Reports</button>
+        <button class="nav-btn" data-view="add">Add Bill</button>
+        <button class="nav-btn" data-view="history">All Bills</button>
+        <button class="nav-btn" data-view="export">Export</button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <button id="logout" class="btn ghost">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- Summary header -->
+      <header class="summary-row">
+        <div class="summary-card">
+          <div class="label">Total This Month</div>
+          <div id="totalMonth" class="big gold">₹0</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">Total This Year</div>
+          <div id="totalYear" class="big gold">₹0</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">Highest Bill (Year)</div>
+          <div id="highestBill" class="big">—</div>
+        </div>
+      </header>
+
+      <!-- Views -->
+      <section id="viewReports" class="view">
+        <div class="card">
+          <div class="card-head">
+            <h3>Quick Add</h3>
+            <small class="muted">Add historic or current bills quickly</small>
+          </div>
+
+          <form id="quickAdd" class="form-inline">
+            <select id="quickType">
+              <option>Electricity</option>
+              <option>Gas</option>
+              <option>Internet</option>
             </select>
-            <input type="number" id="billAmount" placeholder="Amount ₹" required>
-            <input type="month" id="billMonth" required>
-            <button id="addBillBtn">Add Bill</button>
+            <input id="quickAmount" type="number" step="0.01" placeholder="Amount ₹" />
+            <input id="quickDate" type="month" />
+            <select id="quickPaid"><option value="false">Unpaid</option><option value="true">Paid</option></select>
+            <button class="btn primary" id="quickAddBtn" type="button">Add</button>
+          </form>
         </div>
 
-        <div class="chart-container">
-            <canvas id="billsChart"></canvas>
+        <div class="cards-row">
+          <div class="card stat-card gold-card">
+            <div class="label">Electricity — Total</div>
+            <div id="sumElectricity" class="stat">₹0</div>
+            <div class="mini">Avg: <span id="avgElec">₹0</span> • Max: <span id="maxElec">₹0</span> • Min: <span id="minElec">₹0</span></div>
+          </div>
+
+          <div class="card stat-card green-card">
+            <div class="label">Gas — Total</div>
+            <div id="sumGas" class="stat">₹0</div>
+            <div class="mini">Avg: <span id="avgGas">₹0</span> • Max: <span id="maxGas">₹0</span> • Min: <span id="minGas">₹0</span></div>
+          </div>
+
+          <div class="card stat-card blue-card">
+            <div class="label">Internet — Total</div>
+            <div id="sumInternet" class="stat">₹0</div>
+            <div class="mini">Avg: <span id="avgNet">₹0</span> • Max: <span id="maxNet">₹0</span> • Min: <span id="minNet">₹0</span></div>
+          </div>
         </div>
 
-        <button id="generateReportBtn">Generate Report</button>
-        <button id="logoutBtn">Logout</button>
-    </div>
+        <div class="card charts-card">
+          <div class="charts-top">
+            <div>
+              <button id="generateReport" class="btn primary">Generate Report</button>
+              <button id="hideReport" class="btn ghost">Hide</button>
+            </div>
+            <div class="muted small">Charts update when you click Generate Report</div>
+          </div>
 
-    <script src="app.js"></script>
+          <div id="chartsArea" class="charts-area hidden">
+            <div class="chart-card">
+              <canvas id="monthlyChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="chart-card small">
+              <canvas id="pieChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card insights">
+          <h4>Insights</h4>
+          <div id="insightHighestMonth" class="muted">Highest spending month: —</div>
+          <div id="insightLowestMonth" class="muted">Lowest spending month: —</div>
+          <div id="insightPercent" class="muted">Change vs last month: —</div>
+        </div>
+      </section>
+
+      <section id="viewAdd" class="view hidden">
+        <div class="card">
+          <h3>Add Full Bill</h3>
+          <form id="addForm" class="form-column">
+            <label>Type</label>
+            <select id="addType"><option>Electricity</option><option>Gas</option><option>Internet</option></select>
+            <label>Amount (₹)</label>
+            <input id="addAmount" type="number" step="0.01" />
+            <label>Date (month)</label>
+            <input id="addDate" type="month" />
+            <label>Status</label>
+            <select id="addStatus"><option value="false">Unpaid</option><option value="true">Paid</option></select>
+
+            <div class="form-actions">
+              <button id="addSave" class="btn primary" type="button">Save</button>
+              <button id="addClear" class="btn ghost" type="button">Clear</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="viewHistory" class="view hidden">
+        <div class="card">
+          <h3>All Bills</h3>
+          <div class="filters-inline">
+            <select id="filterType"><option value="All">All</option><option>Electricity</option><option>Gas</option><option>Internet</option></select>
+            <input id="filterFrom" type="month" />
+            <input id="filterTo" type="month" />
+            <button id="applyFilter" class="btn">Apply</button>
+            <button id="resetFilter" class="btn ghost">Reset</button>
+          </div>
+
+          <div class="table-wrap">
+            <table id="billsTable">
+              <thead><tr><th>Type</th><th>Amount</th><th>Month</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="viewExport" class="view hidden">
+        <div class="card">
+          <h3>Export / Import</h3>
+          <div class="form-inline">
+            <button id="exportCSV" class="btn primary">Export CSV</button>
+            <button id="exportJSON" class="btn">Export JSON</button>
+            <button id="importJSON" class="btn">Import JSON</button>
+            <input id="importFile" type="file" accept=".json" style="display:none" />
+            <button id="clearAll" class="btn ghost">Clear All Data</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
