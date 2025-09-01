@@ -1,256 +1,252 @@
-// ====== Global Variables ======
-let currentUser = null;
-let billsData = {};
-
-// ====== DOM Elements ======
-const loginScreen = document.getElementById("login-screen");
+// =====================
+// UI Elements
+// =====================
+const loginTab = document.getElementById("loginTab");
+const signupTab = document.getElementById("signupTab");
+const loginForm = document.getElementById("loginForm");
+const signupForm = document.getElementById("signupForm");
+const forgotPasswordForm = document.getElementById("forgotPasswordForm");
+const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+const backToLogin = document.getElementById("backToLogin");
 const dashboard = document.getElementById("dashboard");
-const usernameInput = document.getElementById("username");
-const passwordInput = document.getElementById("password");
-const togglePasswordBtn = document.getElementById("togglePassword");
-const loginBtn = document.getElementById("login-btn");
-const createAccountLink = document.getElementById("create-account");
-const logoutBtn = document.getElementById("logout-btn");
+const authContainer = document.getElementById("authContainer");
 
-const navButtons = document.querySelectorAll(".nav-btn");
-const sections = document.querySelectorAll(".section");
+const loginUsername = document.getElementById("loginUsername");
+const loginPassword = document.getElementById("loginPassword");
+const signupUsername = document.getElementById("signupUsername");
+const signupPassword = document.getElementById("signupPassword");
 
-const billForm = document.getElementById("bill-form");
-const billsTableBody = document.querySelector("#bills-table tbody");
-const quickAddForm = document.getElementById("quick-add-form");
+const resetUsername = document.getElementById("resetUsername");
+const newPassword = document.getElementById("newPassword");
 
-const totalMonthEl = document.getElementById("total-month");
-const totalAnnualEl = document.getElementById("total-annual");
-const highestBillEl = document.getElementById("highest-bill");
+const welcomeMessage = document.getElementById("welcomeMessage");
+const billType = document.getElementById("billType");
+const billAmount = document.getElementById("billAmount");
+const billMonth = document.getElementById("billMonth");
+const addBillBtn = document.getElementById("addBillBtn");
+const generateReportBtn = document.getElementById("generateReportBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
-const monthlyChartCanvas = document.getElementById("monthlyChart");
-const annualChartCanvas = document.getElementById("annualChart");
-
-const generateReportBtn = document.getElementById("generate-report");
-
-// ====== Password Toggle ======
-togglePasswordBtn.addEventListener("click", () => {
-    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+// =====================
+// Tab Switching
+// =====================
+loginTab.addEventListener("click", () => {
+    loginTab.classList.add("active");
+    signupTab.classList.remove("active");
+    loginForm.classList.remove("hidden");
+    signupForm.classList.add("hidden");
+    forgotPasswordForm.classList.add("hidden");
 });
 
-// ====== Load Data from Local Storage ======
-function loadData() {
-    const savedUsers = localStorage.getItem("billTrackerUsers");
-    if (savedUsers) {
-        billsData = JSON.parse(savedUsers);
-    }
-}
-
-// ====== Save Data ======
-function saveData() {
-    localStorage.setItem("billTrackerUsers", JSON.stringify(billsData));
-}
-
-// ====== Login ======
-loginBtn.addEventListener("click", () => {
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    if (!username || !password) {
-        alert("Please enter username and password");
-        return;
-    }
-
-    if (!billsData[username]) {
-        alert("User not found! Please create an account.");
-        return;
-    }
-
-    if (billsData[username].password !== password) {
-        alert("Incorrect password!");
-        return;
-    }
-
-    currentUser = username;
-    showDashboard();
+signupTab.addEventListener("click", () => {
+    signupTab.classList.add("active");
+    loginTab.classList.remove("active");
+    signupForm.classList.remove("hidden");
+    loginForm.classList.add("hidden");
+    forgotPasswordForm.classList.add("hidden");
 });
 
-// ====== Create Account ======
-createAccountLink.addEventListener("click", () => {
-    const username = prompt("Enter new username:");
-    const password = prompt("Enter password:");
+// =====================
+// Forgot Password
+// =====================
+forgotPasswordLink.addEventListener("click", () => {
+    loginForm.classList.add("hidden");
+    forgotPasswordForm.classList.remove("hidden");
+});
 
-    if (!username || !password) return;
+backToLogin.addEventListener("click", () => {
+    forgotPasswordForm.classList.add("hidden");
+    loginForm.classList.remove("hidden");
+});
 
-    if (billsData[username]) {
+// =====================
+// Toggle Password Visibility
+// =====================
+document.querySelectorAll(".toggle-password").forEach(toggle => {
+    toggle.addEventListener("click", () => {
+        const target = document.getElementById(toggle.dataset.target);
+        target.type = target.type === "password" ? "text" : "password";
+    });
+});
+
+// =====================
+// Local Storage Structure
+// =====================
+// users = {
+//   username: { password: "pass", bills: [ {type, amount, month} ] }
+// }
+
+function getUsers() {
+    return JSON.parse(localStorage.getItem("users")) || {};
+}
+
+function saveUsers(users) {
+    localStorage.setItem("users", JSON.stringify(users));
+}
+
+// =====================
+// Signup
+// =====================
+signupForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const username = signupUsername.value.trim();
+    const password = signupPassword.value.trim();
+    let users = getUsers();
+
+    if (users[username]) {
         alert("Username already exists!");
         return;
     }
 
-    billsData[username] = { password: password, bills: [] };
-    saveData();
-    alert("Account created! You can now log in.");
+    users[username] = { password, bills: [] };
+    saveUsers(users);
+
+    alert("Account created! Please log in.");
+    signupUsername.value = "";
+    signupPassword.value = "";
+    loginTab.click();
 });
 
-// ====== Logout ======
-logoutBtn.addEventListener("click", () => {
-    currentUser = null;
-    dashboard.classList.add("hidden");
-    loginScreen.style.display = "flex";
+// =====================
+// Login
+// =====================
+loginForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value.trim();
+    let users = getUsers();
+
+    if (!users[username] || users[username].password !== password) {
+        alert("Invalid username or password.");
+        return;
+    }
+
+    localStorage.setItem("loggedInUser", username);
+    showDashboard(username);
 });
 
-// ====== Show Dashboard ======
-function showDashboard() {
-    loginScreen.style.display = "none";
+// =====================
+// Forgot Password Reset
+// =====================
+forgotPasswordForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const username = resetUsername.value.trim();
+    const newPass = newPassword.value.trim();
+    let users = getUsers();
+
+    if (!users[username]) {
+        alert("Username not found.");
+        return;
+    }
+
+    users[username].password = newPass;
+    saveUsers(users);
+    alert("Password reset successful! Please log in.");
+    backToLogin.click();
+});
+
+// =====================
+// Show Dashboard
+// =====================
+function showDashboard(username) {
+    authContainer.classList.add("hidden");
     dashboard.classList.remove("hidden");
-    updateTables();
-    updateReports();
+    welcomeMessage.textContent = `Welcome, ${username}`;
+    renderChart(username);
 }
 
-// ====== Navigation ======
-navButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-        sections.forEach(sec => sec.classList.add("hidden"));
-        document.getElementById(`${btn.dataset.section}-section`).classList.remove("hidden");
+// =====================
+// Add Bill
+// =====================
+addBillBtn.addEventListener("click", () => {
+    const type = billType.value;
+    const amount = parseFloat(billAmount.value);
+    const month = billMonth.value;
 
-        if (btn.dataset.section === "reports") {
-            updateReports();
-        }
-    });
-});
-
-// ====== Add Bill ======
-billForm.addEventListener("submit", e => {
-    e.preventDefault();
-    const type = document.getElementById("bill-type").value;
-    const amount = parseFloat(document.getElementById("amount").value);
-    const date = document.getElementById("bill-date").value;
-    const status = document.getElementById("status").value;
-
-    if (!type || !amount || !date) {
-        alert("Please fill all fields");
+    if (!amount || !month) {
+        alert("Please enter all details.");
         return;
     }
 
-    billsData[currentUser].bills.push({ type, amount, date, status });
-    saveData();
-    billForm.reset();
-    updateTables();
-    alert("Bill added successfully!");
+    let users = getUsers();
+    const username = localStorage.getItem("loggedInUser");
+    users[username].bills.push({ type, amount, month });
+    saveUsers(users);
+
+    billAmount.value = "";
+    billMonth.value = "";
+
+    renderChart(username);
 });
 
-// ====== Quick Add ======
-quickAddForm.addEventListener("submit", e => {
-    e.preventDefault();
-    const type = document.getElementById("quick-bill-type").value;
-    const amount = parseFloat(document.getElementById("quick-amount").value);
-    const date = document.getElementById("quick-date").value;
-    const status = document.getElementById("quick-status").value;
+// =====================
+// Render Chart
+// =====================
+function renderChart(username) {
+    let users = getUsers();
+    let bills = users[username].bills;
 
-    if (!type || !amount || !date) {
-        alert("Please fill all fields");
-        return;
+    let labels = [...new Set(bills.map(b => b.month))];
+    let electricity = labels.map(m => sumBills(bills, "Electricity", m));
+    let gas = labels.map(m => sumBills(bills, "Gas", m));
+    let internet = labels.map(m => sumBills(bills, "Internet", m));
+
+    const ctx = document.getElementById("billsChart").getContext("2d");
+    if (window.billsChartInstance) {
+        window.billsChartInstance.destroy();
     }
-
-    billsData[currentUser].bills.push({ type, amount, date, status });
-    saveData();
-    quickAddForm.reset();
-    updateTables();
-    updateReports();
-});
-
-// ====== Update Tables ======
-function updateTables() {
-    const bills = billsData[currentUser].bills;
-    billsTableBody.innerHTML = "";
-
-    bills.forEach((bill, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td class="bill-${bill.type}">${bill.type}</td>
-            <td>₹${bill.amount}</td>
-            <td>${bill.date}</td>
-            <td>${bill.status}</td>
-            <td><button onclick="deleteBill(${index})">Delete</button></td>
-        `;
-        billsTableBody.appendChild(row);
-    });
-}
-
-// ====== Delete Bill ======
-function deleteBill(index) {
-    billsData[currentUser].bills.splice(index, 1);
-    saveData();
-    updateTables();
-    updateReports();
-}
-
-// ====== Update Reports ======
-function updateReports() {
-    const bills = billsData[currentUser].bills;
-    let monthlyTotal = 0;
-    let annualTotal = 0;
-    let highest = 0;
-
-    const monthlyTotals = { electricity: 0, gas: 0, internet: 0 };
-    const annualTotals = { electricity: 0, gas: 0, internet: 0 };
-
-    bills.forEach(bill => {
-        const billYear = new Date(bill.date).getFullYear();
-        const billMonth = new Date(bill.date).getMonth();
-
-        if (billMonth === new Date().getMonth() && billYear === new Date().getFullYear()) {
-            monthlyTotal += bill.amount;
-            monthlyTotals[bill.type] += bill.amount;
-        }
-
-        if (billYear === new Date().getFullYear()) {
-            annualTotal += bill.amount;
-            annualTotals[bill.type] += bill.amount;
-        }
-
-        if (bill.amount > highest) highest = bill.amount;
-    });
-
-    totalMonthEl.textContent = monthlyTotal.toFixed(2);
-    totalAnnualEl.textContent = annualTotal.toFixed(2);
-    highestBillEl.textContent = highest.toFixed(2);
-
-    renderChart(monthlyChartCanvas, monthlyTotals, "Monthly Expenses");
-    renderChart(annualChartCanvas, annualTotals, "Annual Expenses");
-}
-
-// ====== Render Chart ======
-function renderChart(canvas, data, label) {
-    new Chart(canvas, {
-        type: 'bar',
+    window.billsChartInstance = new Chart(ctx, {
+        type: "bar",
         data: {
-            labels: ["Electricity", "Gas", "Internet"],
-            datasets: [{
-                label: label,
-                data: [data.electricity, data.gas, data.internet],
-                backgroundColor: ["#ffd700", "#ff6347", "#00ced1"]
-            }]
+            labels,
+            datasets: [
+                { label: "Electricity", data: electricity, backgroundColor: "gold" },
+                { label: "Gas", data: gas, backgroundColor: "#ff6f61" },
+                { label: "Internet", data: internet, backgroundColor: "#4da6ff" }
+            ]
         },
-        options: {
-            responsive: true,
-            animation: {
-                duration: 1500,
-                easing: 'easeOutQuart'
-            }
-        }
+        options: { responsive: true, plugins: { legend: { labels: { color: "#fff" } } }, scales: { x: { ticks: { color: "#fff" } }, y: { ticks: { color: "#fff" } } } }
     });
 }
 
-// ====== Generate Report ======
+function sumBills(bills, type, month) {
+    return bills.filter(b => b.type === type && b.month === month)
+                .reduce((sum, b) => sum + b.amount, 0);
+}
+
+// =====================
+// Generate Report
+// =====================
 generateReportBtn.addEventListener("click", () => {
-    const bills = billsData[currentUser].bills;
-    let csv = "Type,Amount,Date,Status\n";
-    bills.forEach(bill => {
-        csv += `${bill.type},${bill.amount},${bill.date},${bill.status}\n`;
+    const username = localStorage.getItem("loggedInUser");
+    let users = getUsers();
+    let bills = users[username].bills;
+
+    let report = `Bill Report for ${username}\n\n`;
+    bills.forEach(b => {
+        report += `${b.month} - ${b.type}: ₹${b.amount}\n`;
     });
 
-    const blob = new Blob([csv], { type: "text/csv" });
+    const blob = new Blob([report], { type: "text/plain" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "bill_report.csv";
+    link.download = `${username}_Bill_Report.txt`;
     link.click();
 });
 
-// ====== Init ======
-loadData();
+// =====================
+// Logout
+// =====================
+logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("loggedInUser");
+    dashboard.classList.add("hidden");
+    authContainer.classList.remove("hidden");
+});
+
+// =====================
+// Auto Login if Session Exists
+// =====================
+window.onload = () => {
+    const username = localStorage.getItem("loggedInUser");
+    if (username) showDashboard(username);
+};
