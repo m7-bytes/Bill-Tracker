@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Bill Tracker — Family Dashboard</title>
+  <title>BillTracker — Family Reports</title>
 
-  <!-- Chart.js -->
+  <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Login Overlay -->
+  <!-- LOGIN / CREATE -->
   <div id="loginOverlay" class="overlay">
     <div class="loginCard">
-      <h2>Welcome to Bill Tracker</h2>
-      <p class="muted">Enter your credentials to unlock the family dashboard</p>
+      <h2>BillTracker</h2>
+      <p class="muted">Private family bill dashboard (stored locally)</p>
 
       <div id="loginView">
         <input id="loginUser" type="text" placeholder="Username" autocomplete="username" />
@@ -25,9 +25,13 @@
             <input id="showPwLogin" type="checkbox" /> show
           </label>
         </div>
-        <button id="loginBtn" class="btn primary">Unlock</button>
+
+        <div class="row actions" style="margin-top:8px">
+          <button id="loginBtn" class="btn primary">Unlock</button>
+          <button id="openCreate" class="btn ghost">Create account</button>
+        </div>
+
         <p id="loginMsg" class="error"></p>
-        <p class="small muted">No account? <button id="openCreate" class="linkBtn">Create new account</button></p>
       </div>
 
       <div id="createView" class="hidden">
@@ -38,21 +42,19 @@
             <input id="showPwCreate" type="checkbox" /> show
           </label>
         </div>
-        <div class="pwRow">
-          <input id="newPassword2" type="password" placeholder="Confirm password" />
-        </div>
-        <div class="row actions" style="margin-top:8px;">
-          <button id="createBtn" class="btn primary">Create Account</button>
+        <input id="newPassword2" type="password" placeholder="Confirm password" />
+        <div class="row actions" style="margin-top:8px">
+          <button id="createBtn" class="btn primary">Create</button>
           <button id="cancelCreate" class="btn ghost">Cancel</button>
         </div>
         <p id="createMsg" class="error"></p>
-        <p class="small muted">Accounts are stored locally on this device only.</p>
       </div>
 
+      <p class="small muted" style="margin-top:10px">Accounts & data stored locally in your browser.</p>
     </div>
   </div>
 
-  <!-- App -->
+  <!-- APP -->
   <div id="app" class="hidden">
     <aside class="sidebar">
       <div class="brand">
@@ -64,19 +66,18 @@
       </div>
 
       <nav>
-        <button class="navBtn active" data-view="dashboard">Dashboard</button>
+        <button class="navBtn" data-view="reports">Reports</button>
         <button class="navBtn" data-view="add">Add Bill</button>
         <button class="navBtn" data-view="history">History</button>
-        <button class="navBtn" data-view="reports">Reports</button>
         <button class="navBtn" data-view="export">Export</button>
         <button id="logoutBtn" class="navBtn logout">Logout</button>
       </nav>
 
-      <footer class="muted small">© Your Home • Billtrackerbymt</footer>
+      <footer class="muted small">© Your Home • BillTracker</footer>
     </aside>
 
     <main class="main">
-      <!-- Top summary -->
+      <!-- Top Summary -->
       <header class="topbar">
         <div class="summary">
           <div class="tile">
@@ -94,39 +95,34 @@
         </div>
       </header>
 
-      <!-- Views -->
-      <section id="dashboard" class="view">
-        <h2>Overview</h2>
-        <div class="cardsRow">
-          <div class="card smallCard orangeCard">
-            <div class="smallLabel">Electricity (Year)</div>
-            <div id="sumElec" class="cardValue">₹0</div>
-          </div>
-          <div class="card smallCard greenCard">
-            <div class="smallLabel">Gas (Year)</div>
-            <div id="sumGas" class="cardValue">₹0</div>
-          </div>
-          <div class="card smallCard blueCard">
-            <div class="smallLabel">Internet (Year)</div>
-            <div id="sumNet" class="cardValue">₹0</div>
+      <!-- REPORTS (default view after login) -->
+      <section id="reports" class="view">
+        <h2>Reports</h2>
+        <div class="card">
+          <p class="muted">Click <strong>Generate Report</strong> to render this year's charts.</p>
+          <div class="row actions">
+            <button id="generateReport" class="btn primary">Generate Report</button>
           </div>
         </div>
 
-        <div class="chartsRow">
-          <div class="card">
-            <h3>Monthly Trend (This Year)</h3>
-            <canvas id="monthlyChart"></canvas>
-          </div>
+        <div id="reportArea" class="card hidden">
+          <div class="chartsRow">
+            <div class="card">
+              <h3>Monthly Expense Trend (This Year)</h3>
+              <canvas id="monthlyChart"></canvas>
+            </div>
 
-          <div class="card">
-            <h3>Annual Comparison (This Year)</h3>
-            <canvas id="annualChart"></canvas>
+            <div class="card">
+              <h3>Annual Category Comparison (This Year)</h3>
+              <canvas id="annualChart"></canvas>
+            </div>
           </div>
         </div>
       </section>
 
+      <!-- ADD -->
       <section id="add" class="view hidden">
-        <h2>Add a Bill</h2>
+        <h2>Add Bill</h2>
         <div class="card formCard">
           <form id="billForm">
             <div class="row">
@@ -164,9 +160,9 @@
         </div>
       </section>
 
+      <!-- HISTORY -->
       <section id="history" class="view hidden">
         <h2>Bill History</h2>
-
         <div class="filters card">
           <div class="row inline">
             <label>Filter</label>
@@ -177,11 +173,8 @@
               <option>Internet</option>
             </select>
 
-            <label>From</label>
-            <input type="date" id="filterFrom" />
-
-            <label>To</label>
-            <input type="date" id="filterTo" />
+            <label>From</label><input type="date" id="filterFrom" />
+            <label>To</label><input type="date" id="filterTo" />
 
             <button id="applyFilter" class="btn">Apply</button>
             <button id="resetFilter" class="btn ghost">Reset</button>
@@ -192,11 +185,7 @@
           <table id="billTable">
             <thead>
               <tr>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>Type</th><th>Amount</th><th>Date</th><th>Status</th><th>Actions</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -204,43 +193,21 @@
         </div>
       </section>
 
-      <section id="reports" class="view hidden">
-        <h2>Reports</h2>
-        <div class="card">
-          <p class="muted">Generate charts & reports for the current year. Charts update only when you click the button.</p>
-          <div class="row actions">
-            <button id="generateReport" class="btn primary">Generate Report</button>
-          </div>
-        </div>
-
-        <div class="card" id="reportArea" style="display:none">
-          <h3>Generated Charts</h3>
-          <div class="chartsRow">
-            <div class="card">
-              <h4>Monthly Trend</h4>
-              <canvas id="reportMonthly"></canvas>
-            </div>
-            <div class="card">
-              <h4>Category Comparison</h4>
-              <canvas id="reportAnnual"></canvas>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      <!-- EXPORT -->
       <section id="export" class="view hidden">
-        <h2>Export / Backup / Settings</h2>
+        <h2>Export / Backup</h2>
         <div class="card">
-          <p class="muted">Export all bill data as CSV, download JSON backup, import, or clear all data for this account.</p>
+          <p class="muted">Export CSV, backup JSON, import JSON, or clear all bills for this account.</p>
           <div class="row actions">
             <button id="exportCSV" class="btn primary">Export CSV</button>
-            <button id="downloadJSON" class="btn">Download JSON Backup</button>
+            <button id="downloadJSON" class="btn">Download JSON</button>
             <button id="importJSON" class="btn">Import JSON</button>
             <input id="importFile" type="file" accept=".json" style="display:none" />
-            <button id="clearAllData" class="btn ghost" title="Clear bills for this account" style="margin-left:16px; border-color:#5b5b5b">Clear All Data</button>
+            <button id="clearAllData" class="btn ghost">Clear All Data</button>
           </div>
         </div>
       </section>
+
     </main>
   </div>
 
