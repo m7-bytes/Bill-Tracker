@@ -1,35 +1,34 @@
-// =====================
-// UI Elements
-// =====================
+// ============================
+// Elements
+// ============================
 const loginTab = document.getElementById("loginTab");
 const signupTab = document.getElementById("signupTab");
 const loginForm = document.getElementById("loginForm");
 const signupForm = document.getElementById("signupForm");
 const forgotPasswordForm = document.getElementById("forgotPasswordForm");
+
 const forgotPasswordLink = document.getElementById("forgotPasswordLink");
 const backToLogin = document.getElementById("backToLogin");
+
 const dashboard = document.getElementById("dashboard");
-const authContainer = document.getElementById("authContainer");
-
-const loginUsername = document.getElementById("loginUsername");
-const loginPassword = document.getElementById("loginPassword");
-const signupUsername = document.getElementById("signupUsername");
-const signupPassword = document.getElementById("signupPassword");
-
-const resetUsername = document.getElementById("resetUsername");
-const newPassword = document.getElementById("newPassword");
-
 const welcomeMessage = document.getElementById("welcomeMessage");
+
 const billType = document.getElementById("billType");
 const billAmount = document.getElementById("billAmount");
 const billMonth = document.getElementById("billMonth");
 const addBillBtn = document.getElementById("addBillBtn");
+
 const generateReportBtn = document.getElementById("generateReportBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 
-// =====================
-// Tab Switching
-// =====================
+// ============================
+// State
+// ============================
+let currentUser = null;
+
+// ============================
+// Auth Tabs Switch
+// ============================
 loginTab.addEventListener("click", () => {
     loginTab.classList.add("active");
     signupTab.classList.remove("active");
@@ -46,12 +45,65 @@ signupTab.addEventListener("click", () => {
     forgotPasswordForm.classList.add("hidden");
 });
 
-// =====================
+// ============================
+// Toggle Password Visibility
+// ============================
+document.querySelectorAll(".toggle-password").forEach(icon => {
+    icon.addEventListener("click", () => {
+        const targetId = icon.getAttribute("data-target");
+        const input = document.getElementById(targetId);
+        input.type = input.type === "password" ? "text" : "password";
+    });
+});
+
+// ============================
+// Sign Up
+// ============================
+signupForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const username = document.getElementById("signupUsername").value.trim();
+    const password = document.getElementById("signupPassword").value;
+
+    if (!username || !password) return alert("Please fill in all fields");
+
+    let users = JSON.parse(localStorage.getItem("billTrackerUsers")) || {};
+    if (users[username]) {
+        alert("Username already exists");
+        return;
+    }
+
+    users[username] = { password, bills: [] };
+    localStorage.setItem("billTrackerUsers", JSON.stringify(users));
+    alert("Account created successfully! Please login.");
+    signupForm.reset();
+    loginTab.click();
+});
+
+// ============================
+// Login
+// ============================
+loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const username = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value;
+
+    let users = JSON.parse(localStorage.getItem("billTrackerUsers")) || {};
+    if (!users[username] || users[username].password !== password) {
+        alert("Invalid username or password");
+        return;
+    }
+
+    currentUser = username;
+    showDashboard();
+});
+
+// ============================
 // Forgot Password
-// =====================
+// ============================
 forgotPasswordLink.addEventListener("click", () => {
-    loginForm.classList.add("hidden");
     forgotPasswordForm.classList.remove("hidden");
+    loginForm.classList.add("hidden");
+    signupForm.classList.add("hidden");
 });
 
 backToLogin.addEventListener("click", () => {
@@ -59,137 +111,77 @@ backToLogin.addEventListener("click", () => {
     loginForm.classList.remove("hidden");
 });
 
-// =====================
-// Toggle Password Visibility
-// =====================
-document.querySelectorAll(".toggle-password").forEach(toggle => {
-    toggle.addEventListener("click", () => {
-        const target = document.getElementById(toggle.dataset.target);
-        target.type = target.type === "password" ? "text" : "password";
-    });
-});
-
-// =====================
-// Local Storage Structure
-// =====================
-// users = {
-//   username: { password: "pass", bills: [ {type, amount, month} ] }
-// }
-
-function getUsers() {
-    return JSON.parse(localStorage.getItem("users")) || {};
-}
-
-function saveUsers(users) {
-    localStorage.setItem("users", JSON.stringify(users));
-}
-
-// =====================
-// Signup
-// =====================
-signupForm.addEventListener("submit", e => {
+forgotPasswordForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const username = signupUsername.value.trim();
-    const password = signupPassword.value.trim();
-    let users = getUsers();
+    const username = document.getElementById("resetUsername").value.trim();
+    const newPassword = document.getElementById("newPassword").value;
 
-    if (users[username]) {
-        alert("Username already exists!");
-        return;
-    }
-
-    users[username] = { password, bills: [] };
-    saveUsers(users);
-
-    alert("Account created! Please log in.");
-    signupUsername.value = "";
-    signupPassword.value = "";
-    loginTab.click();
-});
-
-// =====================
-// Login
-// =====================
-loginForm.addEventListener("submit", e => {
-    e.preventDefault();
-    const username = loginUsername.value.trim();
-    const password = loginPassword.value.trim();
-    let users = getUsers();
-
-    if (!users[username] || users[username].password !== password) {
-        alert("Invalid username or password.");
-        return;
-    }
-
-    localStorage.setItem("loggedInUser", username);
-    showDashboard(username);
-});
-
-// =====================
-// Forgot Password Reset
-// =====================
-forgotPasswordForm.addEventListener("submit", e => {
-    e.preventDefault();
-    const username = resetUsername.value.trim();
-    const newPass = newPassword.value.trim();
-    let users = getUsers();
-
+    let users = JSON.parse(localStorage.getItem("billTrackerUsers")) || {};
     if (!users[username]) {
-        alert("Username not found.");
+        alert("Username not found");
         return;
     }
 
-    users[username].password = newPass;
-    saveUsers(users);
-    alert("Password reset successful! Please log in.");
+    users[username].password = newPassword;
+    localStorage.setItem("billTrackerUsers", JSON.stringify(users));
+    alert("Password reset successful. Please login.");
+    forgotPasswordForm.reset();
     backToLogin.click();
 });
 
-// =====================
-// Show Dashboard
-// =====================
-function showDashboard(username) {
-    authContainer.classList.add("hidden");
+// ============================
+// Dashboard
+// ============================
+function showDashboard() {
+    document.getElementById("authContainer").classList.add("hidden");
     dashboard.classList.remove("hidden");
-    welcomeMessage.textContent = `Welcome, ${username}`;
-    renderChart(username);
+    welcomeMessage.textContent = `Welcome, ${currentUser}!`;
+    renderChart();
 }
 
-// =====================
+// ============================
 // Add Bill
-// =====================
+// ============================
 addBillBtn.addEventListener("click", () => {
     const type = billType.value;
     const amount = parseFloat(billAmount.value);
     const month = billMonth.value;
 
     if (!amount || !month) {
-        alert("Please enter all details.");
+        alert("Please enter amount and month");
         return;
     }
 
-    let users = getUsers();
-    const username = localStorage.getItem("loggedInUser");
-    users[username].bills.push({ type, amount, month });
-    saveUsers(users);
+    let users = JSON.parse(localStorage.getItem("billTrackerUsers")) || {};
+    users[currentUser].bills.push({ type, amount, month });
+    localStorage.setItem("billTrackerUsers", JSON.stringify(users));
 
     billAmount.value = "";
     billMonth.value = "";
 
-    renderChart(username);
+    renderChart();
 });
 
-// =====================
-// Render Chart
-// =====================
-function renderChart(username) {
-    let users = getUsers();
-    let bills = users[username].bills;
+// ============================
+// Chart.js Graph
+// ============================
+function renderChart() {
+    let users = JSON.parse(localStorage.getItem("billTrackerUsers")) || {};
+    const bills = users[currentUser]?.bills || [];
 
-    let labels = [...new Set(bills.map(b => b.month))];
-    let electricity = labels.map(m => sumBills(bills, "Electricity", m));
-    let gas = labels.map(m => sumBills(bills, "Gas", m));
-    let internet = labels.map(m => sumBills(bills, "Internet", m));
+    const labels = [...new Set(bills.map(b => b.month))].sort();
+    const types = ["Electricity", "Gas", "Internet"];
+
+    const datasets = types.map(type => ({
+        label: type,
+        data: labels.map(month => {
+            const monthBills = bills.filter(b => b.type === type && b.month === month);
+            return monthBills.reduce((sum, b) => sum + b.amount, 0);
+        }),
+        backgroundColor:
+            type === "Electricity" ? "gold" :
+            type === "Gas" ? "teal" : "royalblue"
+    }));
 
     const ctx = document.getElementById("billsChart").getContext("2d");
     if (window.billsChartInstance) {
@@ -197,32 +189,19 @@ function renderChart(username) {
     }
     window.billsChartInstance = new Chart(ctx, {
         type: "bar",
-        data: {
-            labels,
-            datasets: [
-                { label: "Electricity", data: electricity, backgroundColor: "gold" },
-                { label: "Gas", data: gas, backgroundColor: "#ff6f61" },
-                { label: "Internet", data: internet, backgroundColor: "#4da6ff" }
-            ]
-        },
-        options: { responsive: true, plugins: { legend: { labels: { color: "#fff" } } }, scales: { x: { ticks: { color: "#fff" } }, y: { ticks: { color: "#fff" } } } }
+        data: { labels, datasets },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
     });
 }
 
-function sumBills(bills, type, month) {
-    return bills.filter(b => b.type === type && b.month === month)
-                .reduce((sum, b) => sum + b.amount, 0);
-}
-
-// =====================
+// ============================
 // Generate Report
-// =====================
+// ============================
 generateReportBtn.addEventListener("click", () => {
-    const username = localStorage.getItem("loggedInUser");
-    let users = getUsers();
-    let bills = users[username].bills;
+    let users = JSON.parse(localStorage.getItem("billTrackerUsers")) || {};
+    const bills = users[currentUser]?.bills || [];
 
-    let report = `Bill Report for ${username}\n\n`;
+    let report = `Bill Report for ${currentUser}\n\n`;
     bills.forEach(b => {
         report += `${b.month} - ${b.type}: ₹${b.amount}\n`;
     });
@@ -230,23 +209,16 @@ generateReportBtn.addEventListener("click", () => {
     const blob = new Blob([report], { type: "text/plain" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `${username}_Bill_Report.txt`;
+    link.download = `${currentUser}_bill_report.txt`;
     link.click();
 });
 
-// =====================
+// ============================
 // Logout
-// =====================
+// ============================
 logoutBtn.addEventListener("click", () => {
-    localStorage.removeItem("loggedInUser");
+    currentUser = null;
     dashboard.classList.add("hidden");
-    authContainer.classList.remove("hidden");
+    document.getElementById("authContainer").classList.remove("hidden");
+    loginTab.click();
 });
-
-// =====================
-// Auto Login if Session Exists
-// =====================
-window.onload = () => {
-    const username = localStorage.getItem("loggedInUser");
-    if (username) showDashboard(username);
-};
